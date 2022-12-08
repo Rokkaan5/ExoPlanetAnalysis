@@ -30,9 +30,9 @@ library(rvest)
 ### Getting the data.
 The following loaded dataset was first manually downloaded as a csv file from the previously mentioned NASA planet archives. (Most recent download date: December 7th, 2022). From what we've found, most dataset archives for the space sciences or NASA typically provide data to be accessed this way, and we were unable to webscrape the data directly from the link. So, to comply with the project's reproducibility criteria, the data is loaded from the GitHub repo for this project. 
 ```{r Data Loading}
-url <- ""   # place holder for GitHub data extraction
-file_name <- "PSCompPars_2022.12.07_15.29.01.csv"  # remove once GitHub link is added
-planet_data <- read_csv(file_name,skip=88,show_col_types = FALSE)
+url <- "https://raw.githubusercontent.com/Rokkaan5/5301-project-test/main/data/PSCompPars_2022.12.07_15.29.01.csv?token=GHSAT0AAAAAAB3GS64J5Y4EH3UOGIIULXQAY4RJZ4Q"   # place holder for GitHub data extraction
+
+planet_data <- read_csv(url,skip=88,show_col_types = FALSE)
 head(planet_data)
 ```
 

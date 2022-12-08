@@ -148,9 +148,9 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <h3 class="anchored" data-anchor-id="getting-the-data.">Getting the data.</h3>
 <p>The following loaded dataset was first manually downloaded as a csv file from the previously mentioned NASA planet archives. (Most recent download date: December 7th, 2022). From what we’ve found, most dataset archives for the space sciences or NASA typically provide data to be accessed this way, and we were unable to webscrape the data directly from the link. So, to comply with the project’s reproducibility criteria, the data is loaded from the GitHub repo for this project.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>url <span class="ot">&lt;-</span> <span class="st">""</span>   <span class="co"># place holder for GitHub data extraction</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>file_name <span class="ot">&lt;-</span> <span class="st">"PSCompPars_2022.12.07_15.29.01.csv"</span>  <span class="co"># remove once GitHub link is added</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>planet_data <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(file_name,<span class="at">skip=</span><span class="dv">88</span>,<span class="at">show_col_types =</span> <span class="cn">FALSE</span>)</span>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>url <span class="ot">&lt;-</span> <span class="st">"https://raw.githubusercontent.com/Rokkaan5/5301-project-test/main/data/PSCompPars_2022.12.07_15.29.01.csv?token=GHSAT0AAAAAAB3GS64J5Y4EH3UOGIIULXQAY4RJZ4Q"</span>   <span class="co"># place holder for GitHub data extraction</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>planet_data <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(url,<span class="at">skip=</span><span class="dv">88</span>,<span class="at">show_col_types =</span> <span class="cn">FALSE</span>)</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(planet_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 6 × 85
@@ -373,23 +373,23 @@ loaded via a namespace (and not attached):
  [4] utf8_1.2.2          R6_2.5.1            cellranger_1.1.0   
  [7] backports_1.4.1     reprex_2.0.2        evaluate_0.18      
 [10] httr_1.4.4          pillar_1.8.1        rlang_1.0.6        
-[13] googlesheets4_1.0.1 readxl_1.4.1        rstudioapi_0.14    
-[16] rmarkdown_2.18      labeling_0.4.2      googledrive_2.0.0  
-[19] htmlwidgets_1.5.4   bit_4.0.5           munsell_0.5.0      
-[22] broom_1.0.1         compiler_4.2.2      modelr_0.1.10      
-[25] xfun_0.35           pkgconfig_2.0.3     htmltools_0.5.3    
-[28] tidyselect_1.2.0    fansi_1.0.3         crayon_1.5.2       
-[31] tzdb_0.3.0          dbplyr_2.2.1        withr_2.5.0        
-[34] grid_4.2.2          jsonlite_1.8.3      gtable_0.3.1       
-[37] lifecycle_1.0.3     DBI_1.1.3           magrittr_2.0.3     
-[40] scales_1.2.1        cli_3.4.1           stringi_1.7.8      
-[43] vroom_1.6.0         farver_2.1.1        fs_1.5.2           
-[46] xml2_1.3.3          ellipsis_0.3.2      generics_0.1.3     
-[49] vctrs_0.5.1         tools_4.2.2         bit64_4.0.5        
-[52] glue_1.6.2          hms_1.1.2           parallel_4.2.2     
-[55] fastmap_1.1.0       yaml_2.3.6          timechange_0.1.1   
-[58] colorspace_2.0-3    gargle_1.2.1        knitr_1.41         
-[61] haven_2.5.1        </code></pre>
+[13] googlesheets4_1.0.1 curl_4.3.3          readxl_1.4.1       
+[16] rstudioapi_0.14     rmarkdown_2.18      labeling_0.4.2     
+[19] googledrive_2.0.0   htmlwidgets_1.5.4   bit_4.0.5          
+[22] munsell_0.5.0       broom_1.0.1         compiler_4.2.2     
+[25] modelr_0.1.10       xfun_0.35           pkgconfig_2.0.3    
+[28] htmltools_0.5.3     tidyselect_1.2.0    fansi_1.0.3        
+[31] crayon_1.5.2        tzdb_0.3.0          dbplyr_2.2.1       
+[34] withr_2.5.0         grid_4.2.2          jsonlite_1.8.3     
+[37] gtable_0.3.1        lifecycle_1.0.3     DBI_1.1.3          
+[40] magrittr_2.0.3      scales_1.2.1        cli_3.4.1          
+[43] stringi_1.7.8       vroom_1.6.0         farver_2.1.1       
+[46] fs_1.5.2            xml2_1.3.3          ellipsis_0.3.2     
+[49] generics_0.1.3      vctrs_0.5.1         tools_4.2.2        
+[52] bit64_4.0.5         glue_1.6.2          hms_1.1.2          
+[55] parallel_4.2.2      fastmap_1.1.0       yaml_2.3.6         
+[58] timechange_0.1.1    colorspace_2.0-3    gargle_1.2.1       
+[61] knitr_1.41          haven_2.5.1        </code></pre>
 </div>
 </div>
 </section>
