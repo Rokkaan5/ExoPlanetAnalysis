@@ -1,0 +1,178 @@
+---
+title: "ExoPlanetAnalysis"
+author: "Jasmine Kobayashi & Uday Gadge"
+due date: "2022-12-08"
+format:
+  html: default
+  pdf: default
+  docx: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# NASA Exoplanet Archive
+
+## Introduction  
+Exo planets are planets that are outside our solar system. The existence of such planets was formulated in 1917, but they were first discovered in 1992. As of December 2022, 5284 exo planets have been confirmed. There is a bias that the discovery methods favor planets that are near the star.
+
+## Data
+We got the data from NASA Exo planet archives. The data is a comprehensive list of the exo planets discovered, the time and method of discovery along with the features associated with the planets like mass, radius, orbit length, orbital period etc.,
+
+[Link for the data](https://exoplanetarchive.ipac.caltech.edu/cgi-bin/TblView/nph-tblView?app=ExoTbls&config=PSCompPars)
+
+```{r libraries, warning=FALSE,message=FALSE,echo=FALSE}
+library(tidyverse)
+library(rvest)
+```
+
+### Getting the data.
+The following loaded dataset was first manually downloaded as a csv file from the previously mentioned NASA planet archives. (Most recent download date: December 7th, 2022). From what we've found, most dataset archives for the space sciences or NASA typically provide data to be accessed this way, and we were unable to webscrape the data directly from the link. So, to comply with the project's reproducibility criteria, the data is loaded from the GitHub repo for this project. 
+```{r Data Loading}
+url <- ""   # place holder for GitHub data extraction
+file_name <- "PSCompPars_2022.12.07_15.29.01.csv"  # remove once GitHub link is added
+planet_data <- read_csv(file_name,skip=88,show_col_types = FALSE)
+head(planet_data)
+```
+
+```{r DF dimensions}
+# Dataset dimensions
+dim(planet_data)  # n-rows x n-columns 
+```
+This particular dataset has 5220 exo planets and 84 properties associated with each planet. 
+
+```{r DF Columns}
+colnames(planet_data)
+```
+The detailed description of the columns in the data is available [here](https://exoplanetarchive.ipac.caltech.edu/docs/API_PS_columns.html)
+
+### Data cleaning
+
+Selecting columns that are of interest:
+
+* pl_name - planet name
+* hostname - stellar name
+* sy_snum - number of stars in the planetary system
+* sy_pnum - number of planets in the planetary system
+* discoverymethod - method through which it was discovered
+* disc_year - year in which it was discovered
+* disc_facility - facility at which it was discovered
+* pl_controv_flag - If the existence of it is controversial
+* pl_orbper - Estimated period of orbiting (in days)
+* pl_orbsmax - Length of the semi major axis of the orbit
+* pl_bmasse - Best estimated mass of the planet in units of earth's mass
+* pl_bmassj - Best estimated mass of the planet in units of earth's jupiter
+
+```{r Data Selection}
+planet_data <- planet_data %>% select(pl_name, hostname, sy_snum, sy_pnum, discoverymethod, disc_year, disc_facility, pl_controv_flag, pl_orbper, pl_orbsmax, pl_bmasse, pl_bmassj)
+
+head(planet_data)
+```
+```{r Missing data}
+# % of missing values for each column
+colMeans(is.na(planet_data))*100   
+
+```
+The above chunk displays the percentage of missing values in each column. Seeing that no column is missing more than 6% of their data, we found it reasonable to conclude that there is not a significant amount of missing information (for the selected columns we chose). 
+
+## Exploratory Data Analysis
+
+```{r Discovery method freq, warning=FALSE,echo=FALSE}
+planet_data %>% ggplot(aes(discoverymethod)) + 
+  geom_histogram(stat="count",binwidth = 1,fill="gray") + 
+  xlab("Discovery Method") + 
+  ylab("Frequency") + 
+  ggtitle("Distribution of Discovery Methods") + 
+  geom_text(stat="count",aes(label=..count..),hjust="inward") + 
+  coord_flip()
+```
+There is a clear imbalance in the number of planets discovered by different methods. Transit and Radial velocity are the methods through which a lot of planets were discovered.
+
+```{r Discovery years, warning=FALSE,echo=FALSE}
+planet_data %>% ggplot(aes(disc_year)) + 
+  geom_histogram(stat="count") + 
+  xlab("Discovery Year") + 
+  ylab("Count") + 
+  ggtitle("Count of Planets Discovered Each Year") 
+```
+
+There's a clear indication of the increase in discoveries over time, although 2014 and 2016 were particularly successful years.
+
+```{r Num of Stars freq,echo=FALSE}
+planet_data %>% ggplot(aes(sy_snum)) + 
+  geom_histogram(binwidth = 1) + 
+  xlab("Number of Stars") + 
+  ylab("Frequency") + 
+  ggtitle("Number of Stars")
+```
+
+Most planetary systems are like solar systems with a single star.
+
+
+```{r Controversy flag}
+# Number of "raised" controversy flags 
+sum(planet_data$pl_controv_flag == 1) 
+```
+The dataset includes information about potential controversy over a planet's existence, in which the column `pl_controv_flag` consists of binary values (0 = no or 1 = yes) that indicate if there have been published papers that challenge the existence of the planet. 
+
+There are only 28 exo planets whose existence are in question so far.
+
+## Hypothesis testing
+
+As mentioned earlier, there is a bias that the discovery methods tend to favor planets near the sun. We can do a hypothesis testing to check if this is significant bias. 
+
+To perform this analysis, we can take our own solar system as a sample (Let us assume that all the planets in our solar system are close to the sun). If there is no bias, the variance of the exo planets orbital semi major axis should be significantly different than the variance of the solar system planets orbital semi major axis.
+
+$$H_o:\sigma_1^{2}=\sigma_2^{2}$$
+$$H_a:\sigma_1^{2}\neq\sigma_2^{2}$$
+
+For the solar system planets orbital semi major axis,we got the data from
+[here](https://windows2universe.org/our_solar_system/planets_orbits_table.html#:~:text=The%20semimajor%20axis%20the%20average,period%2C%20which%20is%20a%20year.)
+
+```{r}
+solar_planets <- c("Mercury","Venus","Earth","Mars","Jupiter","Saturn","Uranus","Neptune")
+axis_lengths <- c(0.3871,0.7233,1.000	,1.5273	,5.2028	,9.5388	,19.1914	,30.0611)
+
+solar_planets <- data.frame(solar_planets,axis_lengths)
+colnames(solar_planets) <- c("pl_name","pl_orbsmax")
+solar_planets$System <- "Solar System"
+
+exo_planets <- planet_data %>% select(pl_name,pl_orbsmax) %>% 
+  mutate(System = "Exo Planets")
+
+planets <- rbind(solar_planets,exo_planets) %>% filter(!is.na(pl_orbsmax))
+
+out <- aov(formula = pl_orbsmax ~ System, data = planets)
+summary(out)
+```
+
+```{r}
+df1 <- 1
+df2 <- 4938
+F_cr <- qf(0.05,1,4938)
+f <- 0.001
+
+rejection_f_test <- function(x){
+  y <- df(x,df1,df2)
+  y[x<F_cr] <- NA
+  y
+}
+
+ggplot(data.frame(x = c(0,8)), aes(x)) +
+  stat_function(fun = function(x){df(x,1,4938)},geom = "line")+
+  stat_function(fun = function(x){rejection_f_test(x)}, geom = "area", fill = "red",alpha = 0.4)+
+  geom_vline(xintercept = f, linetype = 'dashed') + 
+  geom_hline(yintercept = 0) + xlab('F')+ylab('F(x)')
+```
+The obtained F-Value is 0.01 and the corresponding p_value is 0.976 which is significantly higher than $\alpha=0.05$, we fail to reject the null hypothesis. 
+
+## Conclusion
+The discovery methods are biased towards exo planets that are closer to the star if we define the planets in the solar system to be closer to the sun.
+
+
+## Session info
+```{r Session Info, echo = FALSE}
+sessionInfo()
+```
+
